@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Spoke Clock 1</title>
+</head>
+<body>
+
+<svg class="clock spokes-01"></svg>
+
+<style type="text/css">
+	body {
+		margin: 0;
+	}
+
+	.spokes-01 {
+		background: #fff;
+		width: 100vw;
+		height: 100vh;
+	}
+
+	.spokes-01 * {
+		stroke: #ddd;
+		transition: all 1s;
+	}
+
+	.spokes-01 .active {
+		stroke: #000;
+	}
+
+	.spokes-01 .hour {
+		stroke-width: 6px;
+	}
+
+	.spokes-01 .hour.active {
+		stroke-width: 8px;
+	}
+
+	.spokes-01 .minute  {
+		stroke-width: 4px;
+	}
+
+	.spokes-01 .minute.active {
+		stroke-width: 6px;
+	}
+
+	.spokes-01 .second  {
+		stroke-width: 2px;
+	}
+
+	.spokes-01 .second.active {
+		stroke-width: 4px;
+	}
+
+</style>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script type="text/javascript">
+	(function() {
+		'use strict'
+
+		var size = 1000
+		var radius = size / 2
+
+		var tau = Math.PI * 2
+
+		var svg = d3.select('.spokes-01')
+			.attr('viewBox', [0, 0, size, size])
+
+		svg = svg.append('g')
+				.attr('transform', 'translate(' + [size/2, size/2] + ')')
+
+		var line = d3.radialLine()
+
+		var hours = svg.selectAll('.hour')
+			.data(d3.range(12).map(function(d) {
+				var a = (tau / 12) * d
+				return [[a, radius * 0.2], [a, radius * 0.4]]
+			}))
+			.enter()
+			.append('path')
+			.attr('class', 'hour')
+			.attr('d', line)
+
+		var minutes = svg.selectAll('.minute')
+			.data(d3.range(60).map(function(d) {
+				var a = (tau / 60) * d
+				return [[a, radius * 0.4], [a, radius * 0.6]]
+			}))
+			.enter()
+			.append('path')
+			.attr('class', 'minute')
+			.attr('d', line)
+
+		var seconds = svg.selectAll('.second')
+			.data(d3.range(60).map(function(d) {
+				var a = (tau / 60) * d
+				return [[a, radius * 0.6], [a, radius * 0.8]]
+			}))
+			.enter()
+			.append('path')
+			.attr('class', 'second')
+			.attr('d', line)
+
+		function render(date) {
+			seconds.classed('active', function(d, i) {
+				return i === date.getSeconds()
+			})
+
+			minutes.classed('active', function(d, i) {
+				return i === date.getMinutes()
+			})
+
+			hours.classed('active', function(d, i) {
+				return i === date.getHours() % 12
+			})
+		}
+
+		function tick() {
+			var now = new Date()
+			d3.timeout(tick, 1000 - now % 1000)
+			render(now)
+		}
+
+		tick()
+
+	})()
+</script>
+</body>
+</html>
